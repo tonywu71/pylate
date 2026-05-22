@@ -10,8 +10,6 @@ force the fallback path; both are honored so existing user habits keep
 working.
 """
 
-from __future__ import annotations
-
 import os
 
 import torch

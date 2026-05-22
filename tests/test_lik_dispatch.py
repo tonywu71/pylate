@@ -6,8 +6,6 @@ gating behavior (env-var kill switches, device checks, embedding-dim
 floor). The CUDA parity test is skipped unless a compatible GPU is present.
 """
 
-from __future__ import annotations
-
 import os
 from typing import Iterator
 
