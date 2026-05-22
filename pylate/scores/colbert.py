@@ -4,6 +4,7 @@ import numpy as np
 import torch
 
 from ..utils.tensor import convert_to_tensor
+from . import _lik
 
 
 def colbert_scores(
@@ -67,6 +68,20 @@ def colbert_scores(
     queries_embeddings = convert_to_tensor(queries_embeddings)
     documents_embeddings = convert_to_tensor(documents_embeddings)
 
+    if queries_mask is not None:
+        queries_mask = convert_to_tensor(queries_mask)
+    if documents_mask is not None:
+        documents_mask = convert_to_tensor(documents_mask)
+
+    lik_scores: torch.Tensor | None = _lik.maxsim_or_none(
+        queries_embeddings,
+        documents_embeddings,
+        queries_mask,
+        documents_mask,
+    )
+    if lik_scores is not None:
+        return lik_scores
+
     scores = torch.einsum(
         "ash,bth->abst",
         queries_embeddings,
@@ -74,11 +89,9 @@ def colbert_scores(
     )
 
     if queries_mask is not None:
-        queries_mask = convert_to_tensor(queries_mask)
         scores = scores * queries_mask.unsqueeze(1).unsqueeze(3)
 
     if documents_mask is not None:
-        documents_mask = convert_to_tensor(documents_mask)
         scores = scores * documents_mask.unsqueeze(0).unsqueeze(2)
     scores = scores.max(axis=-1).values.sum(axis=-1)
     return scores
@@ -187,6 +200,20 @@ def colbert_kd_scores(
     queries_embeddings = convert_to_tensor(queries_embeddings)
     documents_embeddings = convert_to_tensor(documents_embeddings)
 
+    if queries_mask is not None:
+        queries_mask = convert_to_tensor(queries_mask)
+    if documents_mask is not None:
+        documents_mask = convert_to_tensor(documents_mask)
+
+    lik_scores: torch.Tensor | None = _lik.maxsim_kd_or_none(
+        queries_embeddings,
+        documents_embeddings,
+        queries_mask,
+        documents_mask,
+    )
+    if lik_scores is not None:
+        return lik_scores
+
     scores = torch.einsum(
         "ash,abth->abst",
         queries_embeddings,
@@ -194,12 +221,10 @@ def colbert_kd_scores(
     )
 
     if queries_mask is not None:
-        queries_mask = convert_to_tensor(queries_mask)
         scores = scores * queries_mask.unsqueeze(1).unsqueeze(3)
 
     if documents_mask is not None:
-        mask = convert_to_tensor(documents_mask)
-        scores = scores * mask.unsqueeze(2)
+        scores = scores * documents_mask.unsqueeze(2)
 
     scores = scores.max(axis=-1).values.sum(axis=-1)
     return scores
