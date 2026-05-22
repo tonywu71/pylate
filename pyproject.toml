@@ -107,7 +107,10 @@ filterwarnings = [
 addopts = "--doctest-modules --verbose -ra --cov-config=.coveragerc -m \"not web and not slow\""
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
 norecursedirs = ["build", "docs", "node_modules", "pylate/server"]
-markers = ["model_loading: marks tests that download large models"]
+markers = [
+    "model_loading: marks tests that download large models",
+    "slow: long-running tests (CUDA parity, training smokes) — opt in with `-m slow`",
+]
 
 [tool.typos.default]
 binary = false
