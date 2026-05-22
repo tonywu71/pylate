@@ -1,16 +1,6 @@
-"""Dispatch helper for late-interaction (MaxSim) scoring.
+"""MaxSim dispatch: fused LIK kernels when available, einsum reference otherwise.
 
-``maxsim_inbatch`` and ``maxsim_kd`` are the entry points used by
-:func:`pylate.scores.colbert.colbert_scores` and
-:func:`pylate.scores.colbert.colbert_kd_scores`. They route through the fused
-Triton (CUDA Ampere+) or ``torch.compile`` (Apple Silicon MPS) kernels from
-``late-interaction-kernels`` when the dependency is installed and the runtime
-is supported, and fall through to a pure-torch ``einsum + amax + sum``
-reference otherwise.
-
-The kill switches ``PYLATE_DISABLE_LIK=1`` and the legacy ``LIK_DISABLE=1``
-force the reference path; both are honored so existing user habits keep
-working.
+Set ``PYLATE_DISABLE_LIK=1`` (or legacy ``LIK_DISABLE=1``) to force the reference path.
 """
 
 import os
